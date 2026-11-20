@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#0b1628">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content="Arc Studio by Circle — https://studio.arc.io" />
+    <meta name="theme-color" content="#0b1628" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="OrbitPay: send and receive USDC on Arc." />
+    <title>OrbitPay</title>
+    <style>
+      html, body { margin: 0; background: #0b1628; color: #f4f7fb; }
+      #boot { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+      #boot .mark { width: 44px; height: 44px; border-radius: 9999px; background: #14253d; border: 1px solid rgba(172,198,233,.45); display: flex; align-items: center; justify-content: center; }
+      #boot .dot { width: 14px; height: 14px; border-radius: 9999px; background: #acc6e9; animation: boot-pulse 1.2s ease-in-out infinite; }
+      #boot h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+      #boot p { margin: 0; max-width: 360px; font-size: 14px; line-height: 1.5; color: #b4c2d6; }
+      #boot pre { margin: 4px 0 0; max-width: 90vw; max-height: 140px; overflow: auto; white-space: pre-wrap; word-break: break-word; text-align: left; font-size: 11px; color: #f08592; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 12px; padding: 10px 12px; }
+      #boot button { height: 44px; padding: 0 20px; border: 0; border-radius: 14px; background: #acc6e9; color: #0b1628; font: 600 14px inherit; font-family: inherit; cursor: pointer; }
+      @keyframes boot-pulse { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
+    </style>
+    <!-- Fonts load without blocking first paint: if the font host is slow or unreachable the app still renders. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      />
+    </noscript>
+  </head>
+  <body>
+    <!-- Built with Arc Studio — https://studio.arc.io -->
+    <div id="root">
+      <div id="boot" data-boot="true">
+        <div class="mark"><div class="dot"></div></div>
+        <h1>OrbitPay</h1>
+        <p id="boot-msg">Loading…</p>
+        <noscript><p>OrbitPay needs JavaScript enabled to run.</p></noscript>
+      </div>
+    </div>
+    <script>
+      // Boot watchdog: if the app never mounts, or a script fails to load, show a readable message instead of a blank page.
+      (function () {
+        var errors = [];
+        function mounted() { return !document.querySelector('[data-boot="true"]'); }
+        function show(title, detail) {
+          var boot = document.querySelector('[data-boot="true"]');
+          if (!boot) return;
+          boot.innerHTML = '';
+          var h = document.createElement('h1'); h.textContent = title; boot.appendChild(h);
+          var p = document.createElement('p');
+          p.textContent = 'The app could not start. Check your connection, then reload. If this keeps happening, share the details below.';
+          boot.appendChild(p);
+          if (detail) { var pre = document.createElement('pre'); pre.textContent = detail; boot.appendChild(pre); }
+          var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Reload';
+          b.onclick = function () { location.reload(); };
+          boot.appendChild(b);
+        }
+        function record(msg) { errors.push(String(msg).slice(0, 400)); if (errors.length > 4) errors.shift(); }
+        window.addEventListener('error', function (e) {
+          var t = e.target;
+          if (t && t !== window && (t.src || t.href)) { if (t.tagName === 'SCRIPT') record('Failed to load script: ' + (t.src || t.href)); return; }
+          record(e.message || 'Unknown error');
+        }, true);
+        window.addEventListener('unhandledrejection', function (e) {
+          record('Unhandled rejection: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+        });
+        setTimeout(function () {
+          if (mounted()) return;
+          if (errors.length) { show('OrbitPay failed to start', errors.join('\n')); return; }
+          var m = document.getElementById('boot-msg');
+          if (m) m.textContent = 'Still loading… this is taking longer than usual.';
+        }, 6000);
+        setTimeout(function () {
+          if (!mounted()) show('OrbitPay failed to start', errors.join('\n') || 'The app did not finish loading.');
+        }, 20000);
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
