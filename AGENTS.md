@@ -35,7 +35,7 @@ Minimal USDC payment dApp on Arc Mainnet (chain 5042) with two features only: Se
 - The contract has no owner, no withdraw, no custody. `pay(to, amount, memo)` does `safeTransferFrom(payer, to, amount)` and emits `PaymentSent`.
 - The app approves exactly the amount being sent, never unlimited.
 - Success is shown only after a successful receipt (and the `PaymentSent` event when routed through the contract).
-- Nothing has been deployed by Arc Studio. Deployed contract address: not deployed yet (set `VITE_ORBITPAY_ADDRESS` or use Settings).
+- Nothing has been deployed by Arc Studio. Deployed OrbitPay (Arc Mainnet, chain 5042): `0xB9Fe116564f44C1Ba25614AB13F21487C098C4c9`, deployed by the user's own wallet `0x0D29B10a4cdCeAe1c2aAA76A459D31b032fb3300` (not by Arc Studio). Configured through `VITE_ORBITPAY_ADDRESS` in `.env`. Checked read-only: code is present, `usdc()` returns `0x3600000000000000000000000000000000000000`, and the bytecode matches the local source compiled without the optimizer apart from the immutable USDC slots and the metadata hash. Not source-verified on the explorer.
 
 ## To Run
 

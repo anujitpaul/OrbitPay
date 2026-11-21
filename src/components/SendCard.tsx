@@ -6,8 +6,9 @@ import { useAccount, useSwitchChain } from 'wagmi'
 import { arcMainnet } from '@/config'
 import { useSendPayment } from '@/hooks/useSendPayment'
 import { useUsdcBalance } from '@/hooks/useUsdcBalance'
-import { displayUsdc } from '@/lib/format'
+import { displayUsdc, shortAddress } from '@/lib/format'
 import { settings } from '@/lib/settings'
+import { buildAddressExplorerUrl } from '@/onchain-facts'
 import { formatUsdc, parseUsdc } from '@/onchain-money'
 import { TxStatus } from './TxStatus'
 
@@ -103,6 +104,7 @@ export function SendCard() {
               label="Route"
               value={settings.orbitPayAddress ? 'OrbitPay contract (approve, then pay)' : 'Direct USDC transfer'}
             />
+            {settings.orbitPayAddress && <Row label="Contract" value={settings.orbitPayAddress} mono />}
           </dl>
           <p className="flex items-start gap-2 text-xs text-pretty" style={{ color: 'var(--muted)' }}>
             <ShieldCheck className="mt-0.5 size-4 shrink-0" style={{ color: 'var(--accent)' }} />
@@ -196,7 +198,22 @@ export function SendCard() {
             )}
           </div>
 
-          {!settings.orbitPayAddress && (
+          {settings.orbitPayAddress ? (
+            <p className="flex flex-wrap items-center gap-x-1 text-xs text-pretty" style={{ color: 'var(--subtle)' }}>
+              <ShieldCheck className="size-3.5 shrink-0" style={{ color: 'var(--success)' }} />
+              Payments go through your OrbitPay contract
+              <a
+                href={buildAddressExplorerUrl(arcMainnet.id, settings.orbitPayAddress)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mono underline underline-offset-4"
+                style={{ color: 'var(--accent)' }}
+              >
+                {shortAddress(settings.orbitPayAddress)}
+              </a>
+              . It never holds your funds.
+            </p>
+          ) : (
             <p className="text-xs text-pretty" style={{ color: 'var(--subtle)' }}>
               No OrbitPay contract set, so this sends a direct USDC transfer. Add your deployed contract in Settings to route payments through it.
             </p>
