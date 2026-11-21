@@ -1,19 +1,28 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useModal } from 'connectkit'
-import { ArrowDownLeft, Check, Copy, ExternalLink, Loader2, RefreshCw } from 'lucide-react'
+import { Check, Copy, ExternalLink, Loader2, RefreshCw } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'sonner'
 import { useAccount } from 'wagmi'
-import { useReceivedPayments } from '@/hooks/useReceivedPayments'
-import { displayUsdc, shortAddress } from '@/lib/format'
+import type { TransactionHistory } from '@/hooks/useTransactionHistory'
 import { ARC_CHAIN_ID, ARC_CHAIN_NAME } from '@/lib/settings'
-import { buildAddressExplorerUrl, buildTxExplorerUrl } from '@/onchain-facts'
+import { buildAddressExplorerUrl } from '@/onchain-facts'
+import { ActivityList } from './ActivityList'
 
-export function ReceiveCard() {
+interface ReceiveCardProps {
+  history: TransactionHistory
+  onViewHistory: () => void
+}
+
+export function ReceiveCard({ history, onViewHistory }: ReceiveCardProps) {
   const { address, isConnected } = useAccount()
   const { setOpen } = useModal()
   const [copied, setCopied] = useState(false)
-  const received = useReceivedPayments()
+  const incoming = useMemo(() => history.items.filter((i) => i.direction === 'in'), [history.items])
+  const { ensureTimes } = history
+  useEffect(() => {
+    ensureTimes(incoming.slice(0, 5).map((r) => r.id))
+  }, [incoming, ensureTimes])
 
   if (!isConnected || !address) {
     return (
@@ -92,74 +101,47 @@ export function ReceiveCard() {
           <h2 className="display text-base font-semibold">Recent payments received</h2>
           <button
             type="button"
-            onClick={() => void received.refetch()}
+            onClick={history.refresh}
             aria-label="Refresh received payments"
             className="flex size-9 items-center justify-center rounded-full transition-colors hover:bg-white/10"
             style={{ color: 'var(--subtle)' }}
           >
-            {received.isFetching ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
+            {history.snapshot.loadingLatest ? <Loader2 className="size-4 animate-spin" /> : <RefreshCw className="size-4" />}
           </button>
         </div>
 
-        {received.isLoading ? (
+        {history.snapshot.error && (
+          <p className="mb-3 text-sm" role="alert" style={{ color: 'var(--danger)' }}>
+            {history.snapshot.error}{' '}
+            <button type="button" onClick={history.refresh} className="font-semibold underline underline-offset-4">
+              Retry
+            </button>
+          </p>
+        )}
+
+        {!history.snapshot.hasLoaded && incoming.length === 0 ? (
           <div className="flex flex-col gap-2" aria-label="Loading payments">
             {[0, 1].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-2xl bg-white/10" />
+              <div key={i} className="h-20 animate-pulse rounded-2xl bg-white/10" />
             ))}
           </div>
-        ) : received.isError ? (
-          <p className="text-sm" style={{ color: 'var(--danger)' }}>
-            Could not load payment history from the Arc RPC. Tap refresh to retry.
-          </p>
-        ) : received.data && received.data.payments.length > 0 ? (
-          <>
-            <ul className="flex flex-col gap-2">
-              {received.data.payments.map((p) => (
-                <li key={`${p.txHash}-${p.logIndex}`}>
-                  <a
-                    href={buildTxExplorerUrl(ARC_CHAIN_ID, p.txHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inner flex min-h-14 items-center justify-between gap-3 rounded-2xl px-3 py-2 transition-colors hover:bg-white/10"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="flex size-9 items-center justify-center rounded-full" style={{ background: 'rgba(141,216,159,0.12)' }}>
-                        <ArrowDownLeft className="size-4" style={{ color: 'var(--success)' }} />
-                      </span>
-                      <span>
-                        <span className="block text-sm font-semibold tabular-nums">+{displayUsdc(p.amount)} USDC</span>
-                        <span className="mono block text-xs" style={{ color: 'var(--subtle)' }}>
-                          from {shortAddress(p.from)}
-                        </span>
-                      </span>
-                    </span>
-                    <span className="flex items-center gap-1 text-xs tabular-nums" style={{ color: 'var(--subtle)' }}>
-                      #{p.blockNumber.toString()}
-                      <ExternalLink className="size-3" />
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <ScanNote scanned={received.data.scannedBlocks} />
-          </>
+        ) : incoming.length > 0 ? (
+          <ActivityList items={incoming.slice(0, 5)} />
         ) : (
-          <>
-            <p className="text-sm" style={{ color: 'var(--muted)' }}>
-              No USDC payments received in the scanned range.
-            </p>
-            {received.data && <ScanNote scanned={received.data.scannedBlocks} />}
-          </>
+          <p className="text-sm" style={{ color: 'var(--muted)' }}>
+            No USDC payments received in the scanned range yet.
+          </p>
         )}
+
+        <button
+          type="button"
+          onClick={onViewHistory}
+          className="mt-3 h-11 w-full rounded-2xl text-sm font-semibold"
+          style={{ background: 'var(--surface-strong)', color: 'var(--ink)', border: '1px solid var(--border)' }}
+        >
+          View full history
+        </button>
       </section>
     </div>
-  )
-}
-
-function ScanNote({ scanned }: { scanned: bigint }) {
-  return (
-    <p className="mt-3 text-xs text-pretty" style={{ color: 'var(--subtle)' }}>
-      Read from onchain USDC transfer events over the latest {scanned.toLocaleString('en-US')} blocks. Older payments are on the explorer.
-    </p>
   )
 }

@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { WaitForTransactionReceiptTimeoutError, erc20Abi, parseEventLogs, zeroHash, type Address, type Hex } from 'viem'
+import { WaitForTransactionReceiptTimeoutError, erc20Abi, parseEventLogs, zeroHash, type Address, type Hex, type PublicClient } from 'viem'
 import { useAccount, useConfig, useWriteContract } from 'wagmi'
-import { readContract, simulateContract, waitForTransactionReceipt } from 'wagmi/actions'
+import { getPublicClient, readContract, simulateContract, waitForTransactionReceipt } from 'wagmi/actions'
 import { arcMainnet } from '@/config'
 import { orbitPayAbi } from '@/lib/abi'
 import { parseTxError } from '@/lib/errors'
+import { requestHistoryRefresh } from '@/lib/historyStore'
+import { resolveStoredTx } from '@/lib/txResolve'
+import { saveSubmittedTx, updateStoredTx } from '@/lib/txStore'
 import { settings } from '@/lib/settings'
 
 export type SendPhase =
@@ -47,6 +50,12 @@ export function useSendPayment() {
       if (!address) return
       const base = { to, amount, route }
       let currentHash: Hex | undefined
+      const payment: { hash?: Hex } = {}
+      // Save the payment's hash the instant the wallet returns it, so history shows it as Pending right away.
+      const recordSubmitted = (hash: Hex) => {
+        payment.hash = hash
+        saveSubmittedTx(address, { hash, from: address, to, amount: amount.toString(), createdAt: Date.now(), status: 'pending' })
+      }
       setState({ ...base, phase: 'checking' })
       try {
         const orbitPay = settings.orbitPayAddress
@@ -102,9 +111,13 @@ export function useSendPayment() {
             chainId,
           })
           currentHash = hash
+          recordSubmitted(hash)
           setState((s) => ({ ...s, ...base, phase: 'pay-confirming', hash }))
           const receipt = await waitForTransactionReceipt(config, { hash, chainId, timeout: RECEIPT_TIMEOUT_MS })
-          if (receipt.status !== 'success') throw new Error('The payment transaction reverted')
+          if (receipt.status !== 'success') {
+            updateStoredTx(address, hash, { status: 'failed', blockNumber: receipt.blockNumber.toString(), message: 'Reverted onchain. No USDC moved.' })
+            throw new Error('The payment transaction reverted')
+          }
 
           // Only report success when the contract's own event proves the payment.
           const events = parseEventLogs({ abi: orbitPayAbi, eventName: 'PaymentSent', logs: receipt.logs })
@@ -116,6 +129,7 @@ export function useSendPayment() {
               e.args.amount === amount,
           )
           if (!proven) throw new Error('Payment event not found in the receipt')
+          updateStoredTx(address, hash, { status: 'confirmed', blockNumber: receipt.blockNumber.toString() })
           setState((s) => ({ ...s, ...base, phase: 'success', hash }))
         } else {
           await simulateContract(config, {
@@ -135,14 +149,19 @@ export function useSendPayment() {
             chainId,
           })
           currentHash = hash
+          recordSubmitted(hash)
           setState({ ...base, phase: 'pay-confirming', hash })
           const receipt = await waitForTransactionReceipt(config, { hash, chainId, timeout: RECEIPT_TIMEOUT_MS })
-          if (receipt.status !== 'success') throw new Error('The transfer transaction reverted')
+          if (receipt.status !== 'success') {
+            updateStoredTx(address, hash, { status: 'failed', blockNumber: receipt.blockNumber.toString(), message: 'Reverted onchain. No USDC moved.' })
+            throw new Error('The transfer transaction reverted')
+          }
+          updateStoredTx(address, hash, { status: 'confirmed', blockNumber: receipt.blockNumber.toString() })
           setState({ ...base, phase: 'success', hash })
         }
 
         void queryClient.invalidateQueries({ queryKey: ['readContract'] })
-        void queryClient.invalidateQueries({ queryKey: ['received-usdc'] })
+        requestHistoryRefresh(address)
       } catch (error) {
         if (error instanceof WaitForTransactionReceiptTimeoutError) {
           setState((s) => ({
@@ -155,6 +174,13 @@ export function useSendPayment() {
           return
         }
         const parsed = parseTxError(error)
+        if (payment.hash && !parsed.rejected) {
+          // The wait helper throws on a reverted tx; the receipt tells us what really happened.
+          const client = getPublicClient(config, { chainId: arcMainnet.id }) as PublicClient | undefined
+          if (client && (await resolveStoredTx(client, address, payment.hash)) === 'failed') {
+            parsed.message = 'The transaction was reverted onchain. No USDC moved.'
+          }
+        }
         setState((s) => ({
           ...s,
           ...base,

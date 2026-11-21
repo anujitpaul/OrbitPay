@@ -20,11 +20,17 @@ Minimal USDC payment dApp on Arc Mainnet (chain 5042) with two features only: Se
 - `src/config.ts` - wagmi config (Arc Mainnet only, RPC timeout/retry/batching)
 - `src/lib/settings.ts` - RPC, USDC and OrbitPay address resolution (localStorage > VITE_ env > defaults)
 - `src/hooks/useSendPayment.ts` - approve + pay flow with simulation and receipt verification
-- `src/hooks/useReceivedPayments.ts` - bounded USDC Transfer log scan for the connected wallet
+- `src/lib/historyScan.ts` - chunked, throttled eth_getLogs scan of USDC Transfer logs (ERC-20 contract and Arc's native system emitter), merged per tx
+- `src/lib/historyStore.ts` - per-wallet history store (scan state, cache, polling); `src/lib/txStore.ts` - locally saved submitted hashes + scan cache
+- `src/hooks/useTransactionHistory.ts` - merges chain rows with pending/failed local rows, resolves receipts
 - `src/components/` - Header, NetworkBanner, BalanceCard, SendCard, ReceiveCard, TxStatus, SettingsDialog
 - `docs/DEPLOY_REMIX.md` - Remix deployment instructions
 
 ## Decisions
+
+- History: Arc logs USDC Transfers from two emitters (ERC-20 `0x3600...` at 6 decimals, native system emitter `0xffff...fffE` at 18 decimals). Both are read and merged; native-only sends are converted to 6 decimals. The public RPC rejects spans of 10,000+ blocks and rate limits bursts (about 3 calls per second sustained), so scans use 9,000-block chunks with a throttle and load older history on demand.
+- RPC failover: `settings.fallbackRpcUrls` (QuickNode, Blockdaemon). wagmi uses a viem `fallback` transport; the history scan uses its own `RpcPool` (per-endpoint throttle, learned block-range limit, cooldown on 429 or network errors, skip on `4444 pruned history`). Blockdaemon is pruned (only recent blocks), dRPC rejects log ranges over 100 blocks so it is not used. Interrupted scans keep progress in localStorage (`orbitpay:scan:v1:*`).
+- Reverted txs emit no logs, so Failed rows exist only for payments submitted from this browser (saved by hash).
 
 - The contract has no owner, no withdraw, no custody. `pay(to, amount, memo)` does `safeTransferFrom(payer, to, amount)` and emits `PaymentSent`.
 - The app approves exactly the amount being sent, never unlimited.

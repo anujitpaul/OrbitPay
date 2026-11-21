@@ -3,7 +3,7 @@
  * Built with Arc Studio — https://studio.arc.io
  */
 
-import { http, createConfig, type CreateConnectorFn } from 'wagmi'
+import { fallback, http, createConfig, type CreateConnectorFn } from 'wagmi'
 import { defineChain } from 'viem'
 import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
 import { registerChain } from './tracing'
@@ -19,6 +19,7 @@ export const arcMainnet = defineChain({
 
 // Pre-register the chain RPC URL so trace events show the chain name immediately
 registerChain(arcMainnet.id, settings.rpcUrl)
+for (const url of settings.fallbackRpcUrls) registerChain(arcMainnet.id, url)
 
 // Wallet support:
 // - Every installed browser extension that announces itself via EIP-6963 (MetaMask, Rabby, Trust Wallet,
@@ -53,7 +54,11 @@ export const config = createConfig({
   multiInjectedProviderDiscovery: true,
   transports: {
     // Timeout + retry keep a slow RPC from hanging the UI; batching merges parallel reads.
-    [arcMainnet.id]: http(settings.rpcUrl, { timeout: 10_000, retryCount: 3, retryDelay: 400, batch: true }),
+    // Failover: if the primary endpoint errors, times out or rate limits, the next one serves the request.
+    [arcMainnet.id]: fallback(
+      [settings.rpcUrl, ...settings.fallbackRpcUrls].map((url) => http(url, { timeout: 10_000, retryCount: 2, retryDelay: 400, batch: true })),
+      { retryCount: 1 },
+    ),
   },
 })
 

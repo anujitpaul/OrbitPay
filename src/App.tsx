@@ -1,22 +1,26 @@
 import { useState } from 'react'
-import { ArrowDownLeft, ArrowUpRight } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, History } from 'lucide-react'
 import { BalanceCard } from '@/components/BalanceCard'
 import { Header } from '@/components/Header'
+import { HistoryCard } from '@/components/HistoryCard'
 import { NetworkBanner } from '@/components/NetworkBanner'
 import { ReceiveCard } from '@/components/ReceiveCard'
 import { SendCard } from '@/components/SendCard'
 import { SettingsDialog } from '@/components/SettingsDialog'
+import { useTransactionHistory } from '@/hooks/useTransactionHistory'
 
-type Tab = 'send' | 'receive'
+type Tab = 'send' | 'receive' | 'history'
 
 const TABS: { id: Tab; label: string; icon: typeof ArrowUpRight }[] = [
   { id: 'send', label: 'Send', icon: ArrowUpRight },
   { id: 'receive', label: 'Receive', icon: ArrowDownLeft },
+  { id: 'history', label: 'History', icon: History },
 ]
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('send')
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const history = useTransactionHistory()
 
   return (
     <div className="min-h-dvh px-4 pb-24">
@@ -27,7 +31,7 @@ export default function App() {
         <main className="flex flex-col gap-4">
           <BalanceCard />
 
-          <div role="tablist" aria-label="Payment actions" className="glass grid grid-cols-2 gap-1 rounded-2xl p-1">
+          <div role="tablist" aria-label="Payment actions" className="glass grid grid-cols-3 gap-1 rounded-2xl p-1">
             {TABS.map(({ id, label, icon: Icon }) => {
               const active = tab === id
               return (
@@ -47,7 +51,16 @@ export default function App() {
             })}
           </div>
 
-          <div role="tabpanel">{tab === 'send' ? <SendCard /> : <ReceiveCard />}</div>
+          {/* Panels stay mounted so an in-flight payment keeps its progress while you look at History. */}
+          <div role="tabpanel" hidden={tab !== 'send'}>
+            <SendCard />
+          </div>
+          <div role="tabpanel" hidden={tab !== 'receive'}>
+            <ReceiveCard history={history} onViewHistory={() => setTab('history')} />
+          </div>
+          <div role="tabpanel" hidden={tab !== 'history'}>
+            <HistoryCard history={history} />
+          </div>
         </main>
 
         <footer className="mt-8 text-center text-xs" style={{ color: 'var(--subtle)' }}>

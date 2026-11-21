@@ -19,6 +19,10 @@ export const ARC_NATIVE_DECIMALS = arc.nativeCurrency.decimals
 export const DEFAULT_RPC_URL = arc.rpcUrls[0]
 export const DEFAULT_USDC_ADDRESS = getAddress(arcUsdc.address)
 
+/** Public Arc mainnet endpoints listed in the Arc docs (https://docs.arc.io/arc/references/rpc-endpoints).
+ * Blockdaemon only keeps recent history and answers older ranges with a clear error, so the scan falls through to the next endpoint. */
+export const DEFAULT_FALLBACK_RPC_URLS = ['https://rpc.quicknode.mainnet.arc.io', 'https://rpc.blockdaemon.mainnet.arc.io']
+
 const STORAGE_KEY = 'orbitpay:settings:v1'
 
 export interface SettingsOverrides {
@@ -29,6 +33,8 @@ export interface SettingsOverrides {
 
 export interface ResolvedSettings {
   rpcUrl: string
+  /** Extra Arc RPC endpoints tried when the primary one fails or rate limits. */
+  fallbackRpcUrls: string[]
   usdcAddress: Address
   orbitPayAddress: Address | undefined
   walletConnectProjectId: string | undefined
@@ -81,8 +87,14 @@ function resolve(): ResolvedSettings {
   const saved = readOverrides()
   const env = import.meta.env
   const projectId = typeof env.VITE_WALLETCONNECT_PROJECT_ID === 'string' ? env.VITE_WALLETCONNECT_PROJECT_ID.trim() : ''
+  const rpcUrl = saved.rpcUrl ?? cleanUrl(env.VITE_ARC_RPC_URL) ?? DEFAULT_RPC_URL
+  // VITE_ARC_RPC_FALLBACK_URLS: comma-separated list. Set it to an empty value to disable fallbacks.
+  const rawFallbacks: unknown = env.VITE_ARC_RPC_FALLBACK_URLS
+  const fallbackCandidates = typeof rawFallbacks === 'string' ? rawFallbacks.split(',') : DEFAULT_FALLBACK_RPC_URLS
+  const fallbackRpcUrls = [...new Set(fallbackCandidates.map((u) => cleanUrl(u)).filter((u): u is string => u !== undefined && u !== rpcUrl))]
   return {
-    rpcUrl: saved.rpcUrl ?? cleanUrl(env.VITE_ARC_RPC_URL) ?? DEFAULT_RPC_URL,
+    rpcUrl,
+    fallbackRpcUrls,
     usdcAddress: saved.usdcAddress ?? cleanAddress(env.VITE_USDC_ADDRESS) ?? DEFAULT_USDC_ADDRESS,
     orbitPayAddress: saved.orbitPayAddress ?? cleanAddress(env.VITE_ORBITPAY_ADDRESS),
     walletConnectProjectId: projectId === '' ? undefined : projectId,
