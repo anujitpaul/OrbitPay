@@ -21,7 +21,16 @@ function parseAmountInput(value: string): bigint | undefined {
   }
 }
 
-export function SendCard() {
+export interface SendPrefill {
+  /** Changes every time the assistant prepares a payment, so the same values can be applied again. */
+  id: number
+  to: string
+  amountText: string
+}
+
+const IN_FLIGHT = new Set(['checking', 'approve-wallet', 'approve-confirming', 'pay-wallet', 'pay-confirming'])
+
+export function SendCard({ prefill }: { prefill?: SendPrefill }) {
   const { address, isConnected, chainId } = useAccount()
   const { setOpen } = useModal()
   const { switchChain, isPending: switching } = useSwitchChain()
@@ -31,6 +40,23 @@ export function SendCard() {
   const [recipient, setRecipient] = useState('')
   const [amountText, setAmountText] = useState('')
   const [reviewing, setReviewing] = useState(false)
+  const [seenPrefill, setSeenPrefill] = useState<number | undefined>(undefined)
+  const [prefillBlocked, setPrefillBlocked] = useState(false)
+  const inFlight = IN_FLIGHT.has(state.phase)
+
+  // The assistant only fills in the form. A payment that is already waiting on the wallet or the chain is never replaced.
+  if (prefill && prefill.id !== seenPrefill) {
+    setSeenPrefill(prefill.id)
+    if (inFlight) {
+      setPrefillBlocked(true)
+    } else {
+      setPrefillBlocked(false)
+      if (state.phase !== 'idle') reset()
+      setRecipient(prefill.to)
+      setAmountText(prefill.amountText)
+      setReviewing(false)
+    }
+  }
 
   const wrongChain = isConnected && chainId !== arcMainnet.id
   const trimmed = recipient.trim()
@@ -91,6 +117,11 @@ export function SendCard() {
 
   return (
     <section className="glass rounded-3xl p-5" aria-label="Send USDC">
+      {prefillBlocked && inFlight && (
+        <p className="mb-3 rounded-xl px-3 py-2 text-xs" role="status" style={{ background: 'rgba(242,197,124,0.12)', color: 'var(--warn)' }}>
+          The assistant prepared a payment, but this one is still in progress. Ask the assistant again once it finishes.
+        </p>
+      )}
       {busy ? (
         <TxStatus state={state} onDone={resetAll} onEdit={backToEdit} onRetry={submit} />
       ) : reviewing && amount !== undefined ? (

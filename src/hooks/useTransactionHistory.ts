@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
-import { TransactionNotFoundError, createPublicClient, http, type Address, type PublicClient } from 'viem'
+import { TransactionNotFoundError, type Address, type PublicClient } from 'viem'
 import { useAccount, useConfig } from 'wagmi'
 import { getPublicClient, waitForTransactionReceipt } from 'wagmi/actions'
 import { arcMainnet } from '@/config'
-import { RpcPool } from '@/lib/historyScan'
+import { rpcPool } from '@/lib/rpcPool'
 import { emptySnapshot, getHistoryStore, requestHistoryRefresh, type HistorySnapshot } from '@/lib/historyStore'
 import { settings } from '@/lib/settings'
 import { resolveStoredTx } from '@/lib/txResolve'
@@ -12,11 +12,6 @@ import { usdcDecimalsFor } from '@/onchain-money'
 
 const NATIVE_SCALE = 10n ** BigInt(arcMainnet.nativeCurrency.decimals - usdcDecimalsFor(arcMainnet.id))
 const DROPPED_AFTER_MS = 10 * 60_000
-// One pool for the app: the configured endpoint first, then the fallbacks. Each client has its own timeout;
-// retries and failover are handled by the pool so a slow endpoint never blocks the others.
-const rpcPool = new RpcPool([settings.rpcUrl, ...settings.fallbackRpcUrls], (url) =>
-  createPublicClient({ chain: arcMainnet, transport: http(url, { timeout: 10_000, retryCount: 0 }) }),
-)
 const noopSubscribe = () => () => {}
 
 function localToRow(tx: StoredTx, me: Address): HistoryTx {

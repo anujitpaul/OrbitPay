@@ -11,6 +11,7 @@ Built with [Arc Studio](https://studio.arc.io)
 - Live USDC balance.
 - Send USDC with address and amount checks, a review step, wallet confirmation, and a success message only after the transaction receipt is verified.
 - Receive USDC: copy your address, show a QR code, and see recent incoming USDC transfers.
+- Payment assistant: a chat that runs in your browser (no API key, no server). Ask about your balance, recent payments or totals, look up a transaction hash, or say "send 25 USDC to 0x…" and it fills in the Send form for you to review. It never sends anything itself.
 - Transaction history: every USDC payment you sent or received on Arc Mainnet, read from the chain (including payments made before this session), with Pending, Confirmed and Failed status, amount, sender, receiver, date and time, and an Arc Explorer link. New payments are saved the moment you submit them, and history refreshes after every payment, on reconnect and when you switch accounts. Older history loads in steps because the public RPC limits block ranges.
 - Configurable RPC URL, USDC address and OrbitPay contract address (Settings dialog or environment variables).
 
@@ -32,6 +33,7 @@ bun run dev          # start the app
 bun run check        # lint and typecheck
 bunx vite build      # production build
 bun run contracts:test   # Solidity tests
+bun run test:assistant   # payment assistant tests
 ```
 
 ### Environment variables

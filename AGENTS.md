@@ -43,3 +43,4 @@ Minimal USDC payment dApp on Arc Mainnet (chain 5042) with two features only: Se
 bun install
 bun run dev
 ```
+- Payment assistant (`src/components/AssistantCard.tsx`, `src/hooks/useAssistant.ts`, `src/lib/assistant/`): rule-based and local, no LLM or backend. It reads the live balance and loaded history and can only prefill the Send form (`SendCard` `prefill` prop). Unit tests: `bun run test:assistant` (`tests/assistant.test.ts`).
