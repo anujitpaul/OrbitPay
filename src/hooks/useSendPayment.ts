@@ -46,7 +46,7 @@ export function useSendPayment() {
   const reset = useCallback(() => setState({ phase: 'idle', route }), [route])
 
   const send = useCallback(
-    async (to: Address, amount: bigint) => {
+    async (to: Address, amount: bigint, memo: Hex = zeroHash) => {
       if (!address) return
       const base = { to, amount, route }
       let currentHash: Hex | undefined
@@ -98,7 +98,7 @@ export function useSendPayment() {
             address: orbitPay,
             abi: orbitPayAbi,
             functionName: 'pay',
-            args: [to, amount, zeroHash],
+            args: [to, amount, memo],
             account: address,
             chainId,
           })
@@ -107,7 +107,7 @@ export function useSendPayment() {
             address: orbitPay,
             abi: orbitPayAbi,
             functionName: 'pay',
-            args: [to, amount, zeroHash],
+            args: [to, amount, memo],
             chainId,
           })
           currentHash = hash

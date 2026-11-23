@@ -12,12 +12,13 @@ Built with [Arc Studio](https://studio.arc.io)
 - Send USDC with address and amount checks, a review step, wallet confirmation, and a success message only after the transaction receipt is verified.
 - Receive USDC: copy your address, show a QR code, and see recent incoming USDC transfers.
 - Payment assistant: a chat that runs in your browser (no API key, no server). Ask about your balance, recent payments or totals, look up a transaction hash, or say "send 25 USDC to 0x…" and it fills in the Send form for you to review. It never sends anything itself.
+- Invoices: create a signed USDC invoice (client name and wallet, project, description, amount, deadline, delivery links and work images), get a shareable link and QR code, and download a PDF. Clients open the link without a wallet, then pay from the client wallet named on the invoice. An invoice only turns Paid after the payment's receipt and USDC Transfer event are verified on Arc Mainnet; payments of the wrong amount or from another wallet never count. Invoices live in your browser and travel inside the link (no server), so the link is the only copy a client has.
 - Transaction history: every USDC payment you sent or received on Arc Mainnet, read from the chain (including payments made before this session), with Pending, Confirmed and Failed status, amount, sender, receiver, date and time, and an Arc Explorer link. New payments are saved the moment you submit them, and history refreshes after every payment, on reconnect and when you switch accounts. Older history loads in steps because the public RPC limits block ranges.
 - Configurable RPC URL, USDC address and OrbitPay contract address (Settings dialog or environment variables).
 
 ## Tech stack
 
-React, Vite, TypeScript, Tailwind CSS, wagmi, viem, ConnectKit (wallet modal, EIP-6963 wallet discovery), Solidity 0.8.28 with Foundry and OpenZeppelin.
+React, Vite, TypeScript, Tailwind CSS, wagmi, viem, ConnectKit (wallet modal, EIP-6963 wallet discovery), Solidity 0.8.28 with Foundry and OpenZeppelin, jsPDF and qrcode for invoice PDFs.
 
 ## Network
 

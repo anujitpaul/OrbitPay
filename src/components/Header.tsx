@@ -15,7 +15,8 @@ function OrbitMark() {
 }
 
 interface HeaderProps {
-  onOpenSettings: () => void
+  /** Omit on pages that have no settings (the public invoice page). */
+  onOpenSettings?: () => void
 }
 
 export function Header({ onOpenSettings }: HeaderProps) {
@@ -31,15 +32,17 @@ export function Header({ onOpenSettings }: HeaderProps) {
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          aria-label="Settings"
-          className="flex size-11 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-          style={{ color: 'var(--muted)' }}
-        >
-          <Settings className="size-5" />
-        </button>
+        {onOpenSettings && (
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            aria-label="Settings"
+            className="flex size-11 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+            style={{ color: 'var(--muted)' }}
+          >
+            <Settings className="size-5" />
+          </button>
+        )}
         <ConnectKitButton.Custom>
           {({ isConnected: connected, show, address }) => (
             <button
