@@ -13,6 +13,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
+      '@circle-fin/bridge-kit/chains',
       'react',
       'react-dom',
       'react-dom/client',
