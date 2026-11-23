@@ -1,6 +1,6 @@
-import { Suspense, lazy, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { Address } from 'viem'
-import { ArrowDownLeft, ArrowUpRight, History, Network, Sparkles } from 'lucide-react'
+import { ArrowDownLeft, ArrowUpRight, History, Sparkles } from 'lucide-react'
 import { AssistantCard } from '@/components/AssistantCard'
 import { BalanceCard } from '@/components/BalanceCard'
 import { Header } from '@/components/Header'
@@ -12,24 +12,19 @@ import { SettingsDialog } from '@/components/SettingsDialog'
 import { useTransactionHistory } from '@/hooks/useTransactionHistory'
 import { formatUsdc } from '@/onchain-money'
 
-type Tab = 'send' | 'receive' | 'history' | 'assistant' | 'bridge'
+type Tab = 'send' | 'receive' | 'history' | 'assistant'
 
 const TABS: { id: Tab; label: string; icon: typeof ArrowUpRight }[] = [
   { id: 'send', label: 'Send', icon: ArrowUpRight },
   { id: 'receive', label: 'Receive', icon: ArrowDownLeft },
   { id: 'history', label: 'History', icon: History },
   { id: 'assistant', label: 'Assistant', icon: Sparkles },
-  { id: 'bridge', label: 'Bridge', icon: Network },
 ]
-
-// Bridge Kit is large, so it loads only when the Bridge tab is first opened.
-const BridgeCard = lazy(() => import('@/components/BridgeCard').then((m) => ({ default: m.BridgeCard })))
 
 export default function App() {
   const [tab, setTab] = useState<Tab>('send')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const history = useTransactionHistory()
-  const [bridgeOpened, setBridgeOpened] = useState(false)
   const [prefill, setPrefill] = useState<SendPrefill | undefined>(undefined)
 
   // The assistant only fills in the Send form. The payment itself is still reviewed and confirmed in the wallet.
@@ -43,12 +38,12 @@ export default function App() {
     <div className="min-h-dvh px-4 pb-24">
       <div className="mx-auto w-full max-w-md">
         <Header onOpenSettings={() => setSettingsOpen(true)} />
-        {tab !== 'bridge' && <NetworkBanner />}
+        <NetworkBanner />
 
         <main className="flex flex-col gap-4">
           <BalanceCard />
 
-          <div role="tablist" aria-label="Payment actions" className="glass grid grid-cols-5 gap-0.5 rounded-2xl p-1">
+          <div role="tablist" aria-label="Payment actions" className="glass grid grid-cols-4 gap-0.5 rounded-2xl p-1">
             {TABS.map(({ id, label, icon: Icon }) => {
               const active = tab === id
               return (
@@ -57,10 +52,7 @@ export default function App() {
                   role="tab"
                   type="button"
                   aria-selected={active}
-                  onClick={() => {
-                    setTab(id)
-                    if (id === 'bridge') setBridgeOpened(true)
-                  }}
+                  onClick={() => setTab(id)}
                   className="flex h-11 items-center justify-center gap-1.5 rounded-xl text-[12px] font-semibold transition-colors sm:gap-2 sm:text-sm"
                   style={active ? { background: 'var(--accent)', color: 'var(--accent-ink)' } : { color: 'var(--muted)' }}
                 >
@@ -83,13 +75,6 @@ export default function App() {
           </div>
           <div role="tabpanel" hidden={tab !== 'assistant'}>
             <AssistantCard history={history} onPrepared={onPrepared} onOpenTab={setTab} />
-          </div>
-          <div role="tabpanel" hidden={tab !== 'bridge'}>
-            {bridgeOpened && (
-              <Suspense fallback={<p className="glass rounded-3xl p-6 text-center text-sm" style={{ color: 'var(--muted)' }}>Loading bridge…</p>}>
-                <BridgeCard />
-              </Suspense>
-            )}
           </div>
         </main>
 
