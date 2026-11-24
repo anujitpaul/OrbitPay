@@ -54,7 +54,7 @@ export function HistoryCard({ history }: { history: TransactionHistory }) {
           type="button"
           onClick={() => setOpen(true)}
           className="mt-4 h-12 w-full rounded-2xl text-sm font-semibold"
-          style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+          style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
         >
           Connect wallet
         </button>
@@ -93,7 +93,7 @@ export function HistoryCard({ history }: { history: TransactionHistory }) {
               setShown(PAGE)
             }}
             className="h-9 rounded-full px-4 text-xs font-semibold transition-colors"
-            style={filter === f.id ? { background: 'var(--accent)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
+            style={filter === f.id ? { background: 'var(--accent-fill)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
           >
             {f.label}
           </button>
@@ -101,13 +101,13 @@ export function HistoryCard({ history }: { history: TransactionHistory }) {
       </div>
 
       {snapshot.error && (
-        <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-2xl p-3 text-xs" style={{ background: 'rgba(240,133,146,0.1)', border: '1px solid rgba(240,133,146,0.3)', color: 'var(--ink)' }}>
+        <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-2xl p-3 text-xs" style={{ background: 'rgba(239,91,91,0.1)', border: '1px solid rgba(239,91,91,0.3)', color: 'var(--ink)' }}>
           <span className="text-pretty">{snapshot.error}</span>
           <button
             type="button"
             onClick={history.refresh}
             className="h-9 shrink-0 rounded-xl px-3 font-semibold"
-            style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+            style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
           >
             Retry
           </button>
@@ -161,7 +161,7 @@ export function HistoryCard({ history }: { history: TransactionHistory }) {
                 type="button"
                 onClick={history.stop}
                 className="flex h-11 flex-1 items-center justify-center gap-2 rounded-2xl text-sm font-semibold"
-                style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+                style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
               >
                 <Loader2 className="size-4 animate-spin" /> Stop scanning
               </button>

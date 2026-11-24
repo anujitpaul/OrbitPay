@@ -105,7 +105,7 @@ export function InvoiceDetail({ record, now, checking, onBack, onCancel, onReche
                 {links.compact ? `${links.compact.slice(0, 64)}…` : 'Creating link…'}
               </p>
               <div className="flex flex-wrap gap-2">
-                <button type="button" className={actionBtn} style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }} disabled={!links.compact} onClick={() => void copy(links.compact, 'Invoice link copied')}>
+                <button type="button" className={actionBtn} style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }} disabled={!links.compact} onClick={() => void copy(links.compact, 'Invoice link copied')}>
                   <Copy className="size-4" aria-hidden /> Copy link
                 </button>
                 <button type="button" className={actionBtn} style={{ background: 'var(--surface-strong)' }} disabled={!links.compact} onClick={() => void share(links.full ?? links.compact)}>

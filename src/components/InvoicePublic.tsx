@@ -207,17 +207,17 @@ function PayPanel({ signed, status, lookup }: { signed: SignedInvoice; status: R
                 <button type="button" onClick={() => setReviewing(false)} className="min-h-12 flex-1 rounded-2xl font-semibold" style={{ background: 'var(--surface-strong)' }}>
                   Back
                 </button>
-                <button type="button" onClick={pay} className="min-h-12 flex-[2] rounded-2xl font-semibold" style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}>
+                <button type="button" onClick={pay} className="min-h-12 flex-[2] rounded-2xl font-semibold" style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}>
                   Confirm in wallet
                 </button>
               </div>
             </div>
           ) : !isConnected ? (
-            <button type="button" onClick={() => setOpen(true)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl font-semibold" style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}>
+            <button type="button" onClick={() => setOpen(true)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl font-semibold" style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}>
               <Wallet className="size-4" aria-hidden /> Connect wallet to pay
             </button>
           ) : wrongNetwork ? (
-            <button type="button" disabled={switching} onClick={() => switchChain({ chainId: arcMainnet.id })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl font-semibold disabled:opacity-60" style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}>
+            <button type="button" disabled={switching} onClick={() => switchChain({ chainId: arcMainnet.id })} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl font-semibold disabled:opacity-60" style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}>
               {switching && <Loader2 className="size-4 animate-spin" aria-hidden />} Switch to Arc Mainnet
             </button>
           ) : (
@@ -228,7 +228,7 @@ function PayPanel({ signed, status, lookup }: { signed: SignedInvoice; status: R
                 disabled={!lookup.firstCheckDone || lowBalance}
                 onClick={() => setReviewing(true)}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl font-semibold disabled:opacity-50"
-                style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+                style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
               >
                 {!lookup.firstCheckDone ? (
                   <>

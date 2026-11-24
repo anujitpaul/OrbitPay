@@ -225,7 +225,7 @@ export function InvoiceForm({ onCreate, onCreated, onClose }: InvoiceFormProps) 
               aria-checked={days === d}
               onClick={() => setDays(d)}
               className="min-h-11 rounded-xl px-3.5 text-sm font-semibold"
-              style={days === d ? { background: 'var(--accent)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
+              style={days === d ? { background: 'var(--accent-fill)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
             >
               {d} days
             </button>
@@ -236,7 +236,7 @@ export function InvoiceForm({ onCreate, onCreated, onClose }: InvoiceFormProps) 
             aria-checked={days === 'custom'}
             onClick={() => setDays('custom')}
             className="min-h-11 rounded-xl px-3.5 text-sm font-semibold"
-            style={days === 'custom' ? { background: 'var(--accent)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
+            style={days === 'custom' ? { background: 'var(--accent-fill)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
           >
             Pick a date
           </button>
@@ -319,7 +319,7 @@ export function InvoiceForm({ onCreate, onCreated, onClose }: InvoiceFormProps) 
       </fieldset>
 
       {error && (
-        <p className="rounded-xl px-3 py-2 text-sm" role="alert" style={{ background: 'rgba(240,133,146,0.12)', color: 'var(--danger)' }}>
+        <p className="rounded-xl px-3 py-2 text-sm" role="alert" style={{ background: 'rgba(239,91,91,0.12)', color: 'var(--danger)' }}>
           {error}
         </p>
       )}
@@ -332,7 +332,7 @@ export function InvoiceForm({ onCreate, onCreated, onClose }: InvoiceFormProps) 
         type="submit"
         disabled={busy || loadingImages}
         className="inline-flex h-13 min-h-12 items-center justify-center gap-2 rounded-2xl text-base font-semibold transition-transform disabled:opacity-50"
-        style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+        style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
       >
         {busy && <Loader2 className="size-4 animate-spin" aria-hidden />}
         {busy ? 'Waiting for your signature…' : 'Create and sign invoice'}

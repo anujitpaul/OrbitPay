@@ -5,6 +5,7 @@ import { Loader2, ShieldCheck } from 'lucide-react'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { arcMainnet } from '@/config'
 import { useSendPayment } from '@/hooks/useSendPayment'
+import { formatFee, useNetworkFee } from '@/hooks/useNetworkFee'
 import { useUsdcBalance } from '@/hooks/useUsdcBalance'
 import { displayUsdc, shortAddress } from '@/lib/format'
 import { settings } from '@/lib/settings'
@@ -35,6 +36,7 @@ export function SendCard({ prefill }: { prefill?: SendPrefill }) {
   const { setOpen } = useModal()
   const { switchChain, isPending: switching } = useSwitchChain()
   const { balance } = useUsdcBalance()
+  const fee = useNetworkFee(settings.orbitPayAddress ? 150_000n : 70_000n)
   const { state, send, reset } = useSendPayment()
 
   const [recipient, setRecipient] = useState('')
@@ -118,7 +120,7 @@ export function SendCard({ prefill }: { prefill?: SendPrefill }) {
   return (
     <section className="glass rounded-3xl p-5" aria-label="Send USDC">
       {prefillBlocked && inFlight && (
-        <p className="mb-3 rounded-xl px-3 py-2 text-xs" role="status" style={{ background: 'rgba(242,197,124,0.12)', color: 'var(--warn)' }}>
+        <p className="mb-3 rounded-xl px-3 py-2 text-xs" role="status" style={{ background: 'rgba(232,166,109,0.12)', color: 'var(--warn)' }}>
           The assistant prepared a payment, but this one is still in progress. Ask the assistant again once it finishes.
         </p>
       )}
@@ -154,7 +156,7 @@ export function SendCard({ prefill }: { prefill?: SendPrefill }) {
               type="button"
               onClick={submit}
               className="h-12 flex-[2] rounded-2xl text-sm font-semibold transition-transform active:scale-[0.99]"
-              style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+              style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
             >
               Confirm in wallet
             </button>
@@ -186,11 +188,19 @@ export function SendCard({ prefill }: { prefill?: SendPrefill }) {
           </div>
 
           <div>
-            <label htmlFor="amount" className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.08em]" style={{ color: 'var(--subtle)' }}>
-              Amount
-            </label>
+            <div className="mb-1.5 flex items-end justify-between gap-3">
+              <label htmlFor="amount" className="block text-xs font-semibold uppercase tracking-[0.08em]" style={{ color: 'var(--subtle)' }}>
+                Amount
+              </label>
+              <span className="text-xs" style={{ color: 'var(--muted)' }}>
+                Available{' '}
+                <span className="font-semibold tabular-nums" style={{ color: 'var(--ink)' }}>
+                  {balance !== undefined ? `${displayUsdc(balance)} USDC` : 'unavailable'}
+                </span>
+              </span>
+            </div>
             <div className="field inner rounded-2xl p-4 transition-shadow">
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-center gap-3">
                 <input
                   id="amount"
                   inputMode="decimal"
@@ -201,25 +211,21 @@ export function SendCard({ prefill }: { prefill?: SendPrefill }) {
                   }}
                   placeholder="0.00"
                   autoComplete="off"
-                  className="display w-full bg-transparent text-4xl font-bold tabular-nums outline-none placeholder:text-slate-600"
+                  className="display min-w-0 flex-1 bg-transparent text-4xl font-bold tabular-nums outline-none placeholder:text-slate-600 sm:text-5xl"
                 />
-                <span className="text-sm font-medium" style={{ color: 'var(--subtle)' }}>
-                  USDC
-                </span>
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <span className="text-xs" style={{ color: 'var(--subtle)' }}>
-                  Keep a little USDC for network fees.
-                </span>
                 <button
                   type="button"
                   disabled={balance === undefined || balance === 0n}
                   onClick={() => balance !== undefined && setAmountText(formatUsdc(balance))}
-                  className="min-h-9 px-1 text-xs font-semibold disabled:opacity-40"
-                  style={{ color: 'var(--accent)' }}
+                  aria-label="Use maximum balance"
+                  className="h-9 shrink-0 rounded-full px-3.5 text-xs font-bold uppercase tracking-wide transition-colors hover:brightness-110 disabled:opacity-40"
+                  style={{ background: 'rgba(242,138,69,0.14)', color: 'var(--accent)', border: '1px solid rgba(242,138,69,0.35)' }}
                 >
-                  {balance !== undefined ? `Balance ${displayUsdc(balance)} · Max` : 'Balance unavailable'}
+                  Max
                 </button>
+                <span className="text-sm font-semibold" style={{ color: 'var(--muted)' }}>
+                  USDC
+                </span>
               </div>
             </div>
             {amountError && (
@@ -229,33 +235,50 @@ export function SendCard({ prefill }: { prefill?: SendPrefill }) {
             )}
           </div>
 
-          {settings.orbitPayAddress ? (
-            <p className="flex flex-wrap items-center gap-x-1 text-xs text-pretty" style={{ color: 'var(--subtle)' }}>
-              <ShieldCheck className="size-3.5 shrink-0" style={{ color: 'var(--success)' }} />
-              Payments go through your OrbitPay contract
-              <a
-                href={buildAddressExplorerUrl(arcMainnet.id, settings.orbitPayAddress)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mono underline underline-offset-4"
-                style={{ color: 'var(--accent)' }}
-              >
-                {shortAddress(settings.orbitPayAddress)}
-              </a>
-              . It never holds your funds.
+          <dl className="inner grid gap-2.5 rounded-2xl p-4 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <dt style={{ color: 'var(--muted)' }}>Network</dt>
+              <dd className="font-semibold">Arc Mainnet</dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt style={{ color: 'var(--muted)' }}>Network fee</dt>
+              <dd className="font-semibold tabular-nums">{fee === undefined ? 'Estimating…' : formatFee(fee)}</dd>
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <dt style={{ color: 'var(--muted)' }}>Route</dt>
+              <dd className="text-right font-semibold">
+                {settings.orbitPayAddress ? (
+                  <>
+                    OrbitPay contract{' '}
+                    <a
+                      href={buildAddressExplorerUrl(arcMainnet.id, settings.orbitPayAddress)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mono text-xs font-medium underline underline-offset-4"
+                      style={{ color: 'var(--accent)' }}
+                    >
+                      {shortAddress(settings.orbitPayAddress)}
+                    </a>
+                  </>
+                ) : (
+                  'Direct USDC transfer'
+                )}
+              </dd>
+            </div>
+            <p className="flex items-start gap-1.5 text-xs text-pretty" style={{ color: 'var(--subtle)' }}>
+              <ShieldCheck className="mt-px size-3.5 shrink-0" style={{ color: 'var(--success)' }} />
+              {settings.orbitPayAddress
+                ? 'Non-custodial: the contract never holds your funds. Keep a little USDC for network fees.'
+                : 'No OrbitPay contract set, so this sends a direct USDC transfer. Add your contract in Settings to route payments through it.'}
             </p>
-          ) : (
-            <p className="text-xs text-pretty" style={{ color: 'var(--subtle)' }}>
-              No OrbitPay contract set, so this sends a direct USDC transfer. Add your deployed contract in Settings to route payments through it.
-            </p>
-          )}
+          </dl>
 
           <button
             type="button"
             disabled={primary.disabled}
             onClick={primary.onClick}
             className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
-            style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+            style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
           >
             {switching && <Loader2 className="size-4 animate-spin" />}
             {primary.label}

@@ -145,7 +145,7 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
                   type="button"
                   onClick={save}
                   className="h-12 flex-[2] rounded-2xl text-sm font-semibold"
-                  style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+                  style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
                 >
                   Save and reload
                 </button>

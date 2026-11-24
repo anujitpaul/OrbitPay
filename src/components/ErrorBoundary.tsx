@@ -39,8 +39,8 @@ export class ErrorBoundary extends Component<Props, State> {
           gap: 14,
           padding: 24,
           textAlign: 'center',
-          background: '#0b1628',
-          color: '#f4f7fb',
+          background: '#101827',
+          color: '#ffffff',
           fontFamily: "'DM Sans', system-ui, sans-serif",
         }}
       >
@@ -58,7 +58,7 @@ export class ErrorBoundary extends Component<Props, State> {
             wordBreak: 'break-word',
             textAlign: 'left',
             fontSize: 11,
-            color: '#f08592',
+            color: '#ef5b5b',
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
             borderRadius: 12,
@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <button
           type="button"
           onClick={() => window.location.reload()}
-          style={{ height: 44, padding: '0 20px', border: 0, borderRadius: 14, background: '#acc6e9', color: '#0b1628', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}
+          style={{ height: 44, padding: '0 20px', border: 0, borderRadius: 14, background: 'linear-gradient(135deg,#f28a45,#c87942)', color: '#101827', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}
         >
           Reload
         </button>

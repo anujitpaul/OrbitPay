@@ -32,7 +32,7 @@ export function formatDateTime(seconds: number): string {
   return new Date(seconds * 1000).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
-const paper = { background: '#f6f8fc', color: '#0b1628' }
+const paper = { background: '#f6f8fc', color: '#101827' }
 const quiet = { color: '#5b6b82' }
 
 function Label({ children }: { children: string }) {

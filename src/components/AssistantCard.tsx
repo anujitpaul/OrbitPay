@@ -112,7 +112,7 @@ function AssistantChat({ history, onPrepared, onOpenTab }: AssistantCardProps) {
           disabled={input.trim() === ''}
           aria-label="Send message"
           className="flex size-12 shrink-0 items-center justify-center rounded-2xl disabled:cursor-not-allowed disabled:opacity-40"
-          style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+          style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
         >
           <SendHorizontal className="size-5" />
         </button>
@@ -126,7 +126,7 @@ function Bubble({ role, children }: { role: ChatMessage['role']; children: React
   return (
     <div
       className={`max-w-[92%] break-words rounded-2xl px-3.5 py-2.5 text-sm text-pretty ${mine ? 'self-end' : 'self-start'}`}
-      style={mine ? { background: 'var(--accent)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', border: '1px solid var(--border)' }}
+      style={mine ? { background: 'var(--accent-fill)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', border: '1px solid var(--border)' }}
     >
       {children}
     </div>
@@ -170,7 +170,7 @@ function MessageView({
             type="button"
             onClick={() => reply.prefill && onPrepare(reply.prefill.to, reply.prefill.amount)}
             className="mt-3 flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold"
-            style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+            style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
           >
             Review in Send
           </button>

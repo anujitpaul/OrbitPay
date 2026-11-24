@@ -42,7 +42,7 @@ export function InvoiceCard() {
             Connect your wallet to create invoices, share them with clients and see when they are paid.
           </p>
         </div>
-        <button type="button" onClick={() => setOpen(true)} className="inline-flex min-h-12 items-center gap-2 rounded-2xl px-5 font-semibold" style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}>
+        <button type="button" onClick={() => setOpen(true)} className="inline-flex min-h-12 items-center gap-2 rounded-2xl px-5 font-semibold" style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}>
           <Wallet className="size-4" aria-hidden /> Connect wallet
         </button>
       </section>
@@ -81,7 +81,7 @@ export function InvoiceCard() {
     <section className="glass flex flex-col gap-4 rounded-3xl p-5" aria-label="Invoices">
       <div className="flex items-center justify-between gap-3">
         <h2 className="display text-lg font-semibold">Invoices</h2>
-        <button type="button" onClick={() => setMode('new')} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold" style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}>
+        <button type="button" onClick={() => setMode('new')} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold" style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}>
           <Plus className="size-4" aria-hidden /> New invoice
         </button>
       </div>
@@ -112,7 +112,7 @@ export function InvoiceCard() {
             aria-pressed={filter === f.id}
             onClick={() => setFilter(f.id)}
             className="min-h-11 shrink-0 rounded-xl px-3.5 text-sm font-semibold"
-            style={filter === f.id ? { background: 'var(--accent)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
+            style={filter === f.id ? { background: 'var(--accent-fill)', color: 'var(--accent-ink)' } : { background: 'var(--surface-strong)', color: 'var(--muted)' }}
           >
             {f.label}
           </button>

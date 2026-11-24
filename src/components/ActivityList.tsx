@@ -5,8 +5,8 @@ import type { HistoryTx } from '@/lib/txStore'
 import { buildTxExplorerUrl } from '@/onchain-facts'
 
 const DIRECTION = {
-  in: { label: 'Received', sign: '+', Icon: ArrowDownLeft, tint: 'rgba(141,216,159,0.12)', color: 'var(--success)' },
-  out: { label: 'Sent', sign: '-', Icon: ArrowUpRight, tint: 'rgba(172,198,233,0.14)', color: 'var(--accent)' },
+  in: { label: 'Received', sign: '+', Icon: ArrowDownLeft, tint: 'rgba(111,214,162,0.13)', color: 'var(--success)' },
+  out: { label: 'Sent', sign: '-', Icon: ArrowUpRight, tint: 'rgba(242,138,69,0.15)', color: 'var(--accent)' },
   self: { label: 'To self', sign: '', Icon: Repeat2, tint: 'rgba(255,255,255,0.08)', color: 'var(--muted)' },
 } as const
 
@@ -23,20 +23,20 @@ function formatWhen(tx: HistoryTx): { date: string; time: string } | undefined {
 function StatusBadge({ tx }: { tx: HistoryTx }) {
   if (tx.status === 'pending') {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'rgba(242,197,124,0.14)', color: 'var(--warn)' }}>
+      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'rgba(232,166,109,0.16)', color: 'var(--warn)' }}>
         <Loader2 className="size-3 animate-spin" /> Pending
       </span>
     )
   }
   if (tx.status === 'failed') {
     return (
-      <span title={tx.message} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'rgba(240,133,146,0.14)', color: 'var(--danger)' }}>
+      <span title={tx.message} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'rgba(239,91,91,0.14)', color: 'var(--danger)' }}>
         <XCircle className="size-3" /> Failed
       </span>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'rgba(141,216,159,0.14)', color: 'var(--success)' }}>
+    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold" style={{ background: 'rgba(111,214,162,0.14)', color: 'var(--success)' }}>
       <CheckCircle2 className="size-3" /> Confirmed
     </span>
   )

@@ -80,7 +80,7 @@ export function TxStatus({ state, onDone, onEdit, onRetry }: TxStatusProps) {
           type="button"
           onClick={onDone}
           className="mt-1 h-12 w-full rounded-2xl text-sm font-semibold transition-transform active:scale-[0.99]"
-          style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+          style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
         >
           Send another payment
         </button>
@@ -134,7 +134,7 @@ export function TxStatus({ state, onDone, onEdit, onRetry }: TxStatusProps) {
             type="button"
             onClick={onRetry}
             className="h-12 flex-1 rounded-2xl text-sm font-semibold"
-            style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+            style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
           >
             Try again
           </button>
@@ -167,7 +167,7 @@ export function TxStatus({ state, onDone, onEdit, onRetry }: TxStatusProps) {
           type="button"
           onClick={onRetry}
           className="h-12 flex-1 rounded-2xl text-sm font-semibold"
-          style={{ background: 'var(--accent)', color: 'var(--accent-ink)' }}
+          style={{ background: 'var(--accent-fill)', color: 'var(--accent-ink)' }}
         >
           Try again
         </button>

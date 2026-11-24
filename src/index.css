@@ -3,24 +3,34 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0b1628;
-  --bg-gradient: radial-gradient(1200px 520px at 50% -10%, #17335c 0%, rgba(11, 22, 40, 0) 60%),
-    linear-gradient(180deg, #0b1628 0%, #0d1b2f 58%, #122d45 100%);
-  --surface: rgba(255, 255, 255, 0.06);
-  --surface-strong: rgba(255, 255, 255, 0.1);
-  --surface-muted: #14253d;
-  --ink: #f4f7fb;
-  --ink-2: #e3ecf9;
-  --muted: #b4c2d6;
-  --subtle: #8195b0;
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(172, 198, 233, 0.5);
-  --accent: #acc6e9;
-  --accent-hover: #cbdbf2;
-  --accent-ink: #0b1628;
-  --success: #8dd89f;
-  --danger: #f08592;
-  --warn: #f2c57c;
+  /* Palette: navy base, orange and copper accents. No purple, no pink. */
+  --bg: #101827;
+  --bg-2: #142238;
+  --card: #192b42;
+  --bg-gradient: radial-gradient(900px 520px at 88% -8%, rgba(242, 138, 69, 0.16) 0%, rgba(242, 138, 69, 0) 62%),
+    radial-gradient(760px 480px at -8% 4%, rgba(200, 121, 66, 0.1) 0%, rgba(200, 121, 66, 0) 60%),
+    linear-gradient(180deg, #101827 0%, #101827 55%, #142238 100%);
+  --surface: rgba(25, 43, 66, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --surface-muted: #142238;
+  --ink: #ffffff;
+  --ink-2: #ffffff;
+  --muted: #a9b8cc;
+  --subtle: rgba(169, 184, 204, 0.78);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(242, 138, 69, 0.55);
+  --accent: #f28a45;
+  --accent-2: #c87942;
+  --highlight: #e8a66d;
+  --accent-hover: #e8a66d;
+  --accent-fill: linear-gradient(135deg, #f28a45 0%, #c87942 100%);
+  --accent-glow: 0 12px 28px -12px rgba(242, 138, 69, 0.65);
+  --accent-ink: #101827;
+  --success: #6fd6a2;
+  --danger: #ef5b5b;
+  --warn: #e8a66d;
+  --radius-card: 1.75rem;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 * {
@@ -52,20 +62,84 @@ body {
 }
 
 .glass {
-  background: var(--surface);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 38%), var(--surface);
   border: 1px solid var(--border);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
 }
 
 .inner {
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(16, 24, 39, 0.5);
   border: 1px solid var(--border);
+}
+
+.field {
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 
 .field:focus-within {
   border-color: var(--border-strong);
-  box-shadow: 0 0 0 3px rgba(133, 177, 237, 0.16);
+  box-shadow: 0 0 0 3px rgba(242, 138, 69, 0.18);
+}
+
+/* Orange-to-copper buttons get a soft glow and a gentle lift. */
+button[style*='--accent-fill'] {
+  box-shadow: var(--accent-glow);
+  transition: transform 0.18s var(--ease), filter 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+button[style*='--accent-fill']:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+button[style*='--accent-fill']:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+}
+button[style*='--accent-fill']:disabled {
+  box-shadow: none;
+  filter: saturate(0.6);
+}
+
+button, a, [role='tab'] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+[role='tab']:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Text fields show their focus on the surrounding .field card instead of a second outline. */
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.45s var(--ease) both;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(111, 214, 162, 0.55); }
+  50% { box-shadow: 0 0 0 5px rgba(111, 214, 162, 0); }
+}
+
+.live-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

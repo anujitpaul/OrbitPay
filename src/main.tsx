@@ -49,14 +49,14 @@ createRoot(document.getElementById('root')!).render(
           }}
           customTheme={{
             '--ck-font-family': "'DM Sans', sans-serif",
-            '--ck-body-background': '#0f1f36',
-            '--ck-primary-button-background': '#14253d',
-            '--ck-accent-color': '#acc6e9',
-            '--ck-accent-text-color': '#0b1628',
+            '--ck-body-background': '#142238',
+            '--ck-primary-button-background': '#192b42',
+            '--ck-accent-color': '#f28a45',
+            '--ck-accent-text-color': '#101827',
           }}
         >
           <App />
-          <Toaster position="top-center" />
+          <Toaster position="top-center" theme="dark" />
         </ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

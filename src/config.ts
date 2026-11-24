@@ -15,6 +15,8 @@ export const arcMainnet = defineChain({
   nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: ARC_NATIVE_DECIMALS },
   rpcUrls: { default: { http: [settings.rpcUrl] } },
   blockExplorers: { default: { name: 'Arc Explorer', url: ARC_EXPLORER_BASE } },
+  // Multicall3 is deployed at its canonical address on Arc; swap reads use it to fetch many values in one request.
+  contracts: { multicall3: { address: '0xcA11bde05977b3631167028862bE2a173976CA11' } },
 })
 
 // Pre-register the chain RPC URL so trace events show the chain name immediately
